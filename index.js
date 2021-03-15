@@ -27,15 +27,14 @@ client.on('message', msg => {
 
   if (command === 'ping') {
     if (msg.author.id === lastPinger) return;
-    msg.reply('lol fuck u bitch ass');
+    msg.channel.send('lol fuck u bitch ass');
     lastPinger = msg.author.id;
   }
 
   if (command === 'quote') {
     const luckyNumber = random.int((min=0), (max=simpleQuotes.length-1));
-    msg.reply(`Sun Tzu says: "${simpleQuotes[luckyNumber]}"`);
+    msg.channel.send(`"${simpleQuotes[luckyNumber]}" — Sun Tzu`);
   }
 });
 
 client.login(DISCORD_API);
-
