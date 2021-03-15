@@ -2,6 +2,9 @@
   "name": "sun-tzu-bot",
   "version": "1.0.0",
   "description": "sun tzu discord bot",
+  "engines": {
+    "node": "6.14.11"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
