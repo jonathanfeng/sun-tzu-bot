@@ -33,7 +33,7 @@ client.on('message', msg => {
 
   if (command === 'quote') {
     const luckyNumber = random.int((min=0), (max=simpleQuotes.length-1));
-    msg.channel.send(`Sun Tzu says: "${simpleQuotes[luckyNumber]}"`);
+    msg.channel.send(`"${simpleQuotes[luckyNumber]}" — Sun Tzu`);
   }
 });
 
