@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/jonathanfeng/sun-tzu-bot#readme",
   "dependencies": {
-    "discord.js": "^12.5.1"
+    "discord.js": "^12.5.1",
+    "random": "^3.0.3"
   }
 }
