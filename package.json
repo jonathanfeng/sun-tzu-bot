@@ -1,0 +1,28 @@
+{
+  "name": "sun-tzu-bot",
+  "version": "1.0.0",
+  "description": "sun tzu discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonathanfeng/sun-tzu-bot.git"
+  },
+  "keywords": [
+    "sun",
+    "tzu",
+    "discord",
+    "bot"
+  ],
+  "author": "Jonathan Feng",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonathanfeng/sun-tzu-bot/issues"
+  },
+  "homepage": "https://github.com/jonathanfeng/sun-tzu-bot#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1"
+  }
+}
