@@ -10,5 +10,11 @@
             "quantity": 1,
             "size": "free"
         }
+    },
+    "scripts": {
+        "start": "node build/index.js",
+        "build": "tsc -p tsconfig.json",
+        "watch": "tsc -p tsconfig.json -w",
+        "test": "mocha -r ts-node/register \"tests/**/*.spec.ts\""
     }
 }
