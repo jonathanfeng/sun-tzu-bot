@@ -1,0 +1,14 @@
+{
+    "name": "sun-tzu-bot",
+    "description": "sun tzu bot",
+    "formation": {
+        "web": {
+            "quantity": 0,
+            "size": "free"
+        },
+        "worker": {
+            "quantity": 1,
+            "size": "free"
+        }
+    }
+}
