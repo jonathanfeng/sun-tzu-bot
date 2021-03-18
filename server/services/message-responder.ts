@@ -23,6 +23,9 @@ export class MessageResponder {
     if (command === 'quote') {
       res = commands.SunTzuQuote();
     }
+    if (command === 'shouldirosh?') {
+      res = commands.Rosh();
+    }
     if (res) return message.channel.send(res);
     return Promise.reject();
   }
