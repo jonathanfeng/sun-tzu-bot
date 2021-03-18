@@ -1,1 +1,1 @@
-worker: npm build.js
+worker: npm build/index.js
