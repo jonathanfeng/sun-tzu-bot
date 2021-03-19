@@ -33,6 +33,7 @@
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "inversify": "^5.0.5",
+    "lodash": "^4.17.21",
     "pg": "^8.5.1",
     "random": "^3.0.3",
     "reflect-metadata": "^0.1.13",
