@@ -3,6 +3,8 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "../types";
 import {PingFinder} from "./ping-finder";
 import * as commands from "../commands";
+import {QueryController} from '../database/query';
+
 
 @injectable()
 export class MessageResponder {
@@ -14,19 +16,25 @@ export class MessageResponder {
     this.pingFinder = pingFinder;
   }
 
-  handle(message: Message): Promise<Message | Message[]> {
-    const {args, command} = this.pingFinder.parsePrefix(message.content);
-    let res: string;
+  async getResponse(message: Message, command: string, args: string[]) {
     if (command === 'ping') {
-      res = commands.Ping();
+      return await commands.Ping(message.author.id);
     }
     if (command === 'quote') {
-      res = commands.SunTzuQuote();
+      return commands.SunTzuQuote();
     }
     if (command === 'shouldirosh?') {
-      res = commands.Rosh();
+      return commands.Rosh();
     }
-    if (res) return message.channel.send(res);
-    return Promise.reject();
+  }
+
+  async handle(message: Message): Promise<void> {
+    const {args, command} = this.pingFinder.parsePrefix(message.content);
+    const res = await this.getResponse(message, command, args);
+    if (res) {
+      console.log(`Response: ${res}`);
+      message.channel.send(res);
+    }
+    return;
   }
 }

@@ -3,6 +3,7 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "./types";
 import {MessageResponder} from "./services/message-responder";
 import {PingFinder, IMessage} from "./services/ping-finder";
+import pool from './database/dbconnect'
 
 @injectable()
 export class Bot {
@@ -20,24 +21,26 @@ export class Bot {
     this.token = token;
     this.messageResponder = messageResponder;
     this.pingFinder = pingFinder;
+    this.dbConnect();
   }
 
-  public listen(): Promise<string> {
+  private async dbConnect() {
+    await pool.connect();
+    console.log('Connected to database...')
+  }
+
+  public async listen(): Promise<string> {
     this.client.on('ready', () => {
       console.log(`Logged in as ${this.client.user.tag}!`);
     });
     
-    this.client.on('message', (message: Message) => {
+    this.client.on('message', async (message: Message) => {
       if (message.author.bot) {
         console.log(`Ignoring bot message: ${message}`)
         return;
       }
       if (!this.pingFinder.checkPing(message.content)) return;
-      this.messageResponder.handle(message).then(() => {
-        console.log("Response sent!");
-      }).catch(() => {
-        console.log("Response not sent.")
-      })
+      await this.messageResponder.handle(message);
     });
 
     return this.client.login(this.token);
