@@ -2,7 +2,7 @@ import {Message} from "discord.js";
 import {inject, injectable} from "inversify";
 import {TYPES} from "../types";
 import {PingFinder} from "./ping-finder";
-import * as commands from "../commands";
+import {COMMANDS} from '../commands';
 
 export interface IFunctionParams {
   message: Message,
@@ -19,11 +19,7 @@ export class MessageResponder {
     @inject(TYPES.PingFinder) pingFinder: PingFinder
   ) {
     this.pingFinder = pingFinder;
-    this.Function = {
-      'ping': commands.Ping,
-      'quote': commands.SunTzuQuote,
-      'shouldirosh?': commands.Rosh
-    }
+    this.Function = COMMANDS
   }
 
   async handle(message: Message): Promise<void> {
