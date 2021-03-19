@@ -8,4 +8,9 @@ export class QueryController {
     client.release();
     return response.rows[0].lastpinger;
   }
+  async runQuery(query: string, values: string[] = []) {
+    const client = await pool.connect();
+    const response = values.length === 0 ? await client.query(query) : await client.query(query, values);
+    return response.rows;
+  }
 }

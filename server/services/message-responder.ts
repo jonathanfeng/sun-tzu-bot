@@ -3,6 +3,7 @@ import {inject, injectable} from "inversify";
 import {TYPES} from "../types";
 import {PingFinder} from "./ping-finder";
 import {COMMANDS} from '../commands';
+import * as _ from 'lodash';
 
 export interface IFunctionParams {
   message: Message,
@@ -22,14 +23,22 @@ export class MessageResponder {
     this.Function = COMMANDS
   }
 
+  sanitizeCommand(command: string) {
+    if (_.includes(['shouldirosh?', 'shouldwerosh?'], command)) return 'rosh';
+    if (_.includes(['summonexodia'], command)) return 'exodia';
+    if (_.includes(['leftarm', 'rightarm', 'leftleg', 'rightleg'], command)) return 'joinexodia';
+    return command;
+  }
+
   async handle(message: Message): Promise<void> {
     const {args, command} = this.pingFinder.parsePrefix(message.content);
+    const sanitizedCommand = this.sanitizeCommand(command);
     const params: IFunctionParams = {
       message: message,
       command: command,
       args: args
     };
-    const res = await this.Function[command](params);
+    const res = await this.Function[sanitizedCommand](params);
     if (res) {
       console.log(`Response: ${res}`);
       message.channel.send(res);
