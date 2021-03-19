@@ -2,7 +2,7 @@ import {Client, Message} from "discord.js";
 import {inject, injectable} from "inversify";
 import {TYPES} from "./types";
 import {MessageResponder} from "./services/message-responder";
-import {PingFinder, IMessage} from "./services/ping-finder";
+import {PingFinder} from "./services/ping-finder";
 import pool from './database/dbconnect'
 
 @injectable()

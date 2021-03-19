@@ -1,11 +1,13 @@
 import { QueryController } from '../database/query';
+import { IFunctionParams } from '../services/message-responder';
 
-export async function Ping(accountId: string) {
+export async function Ping(params: IFunctionParams) {
     const qc = new QueryController();
-    const lastPinger = await qc.getLastPinger(accountId);
+    const authorId = params.message.author.id;
+    const lastPinger = await qc.getLastPinger(authorId);
 
-    if (accountId === lastPinger) {
-        console.log(`Repeat pinger found: ${accountId}`);
+    if (authorId === lastPinger) {
+        console.log(`Repeat pinger found: ${authorId}`);
         return;
     }
     return "lol fuck u bitch ass";
