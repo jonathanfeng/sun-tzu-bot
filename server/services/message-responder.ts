@@ -38,6 +38,7 @@ export class MessageResponder {
       command: command,
       args: args
     };
+    if (!_.has(this.Function, sanitizedCommand)) return;
     const res = await this.Function[sanitizedCommand](params);
     if (res) {
       console.log(`Response: ${res}`);
