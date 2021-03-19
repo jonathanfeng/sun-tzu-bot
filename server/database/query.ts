@@ -11,6 +11,15 @@ export class QueryController {
   async runQuery(query: string, values: string[] = []) {
     const client = await pool.connect();
     const response = values.length === 0 ? await client.query(query) : await client.query(query, values);
+    client.release();
     return response.rows;
+  }
+  async getLatestParty(game: string) {
+    const client = await pool.connect();
+    const getQuery = `SELECT * FROM public.parties WHERE game = $1 ORDER BY timestamp DESC LIMIT 1`;
+    const getValues = [game];
+    const response = await client.query(getQuery, getValues);
+    client.release();
+    return response.rows[0];
   }
 }
