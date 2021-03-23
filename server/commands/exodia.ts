@@ -14,8 +14,10 @@ export async function StartExodia(params: IFunctionParams) {
   if (await isActiveGame(game, qc)) return "There is already a queue in place";
   setTimeout( async () => {await endSearch(game, message, authorUsername, qc)}, timer * 60 * 1000);
   await setActiveGame(game, qc);
-  const mention = `<@&${getMention(message, game).map(role => role.id)[0]}>`;
-  // const mention = "idiota";
+  let mention = `<@&${getMention(message, game).map(role => role.id)[0]}>`;
+  if (process.env["IS_DEV"]) {
+    mention = "idiota";
+  }
   await startParty(game, authorUsername, qc);
   return `${authorUsername} began the summoning ritual for <:exodiahead:812195660123340850> in ${game}. Join them ${mention}!
 ${timer} minutes until search ends!`;

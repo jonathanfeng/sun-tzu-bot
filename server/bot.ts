@@ -26,7 +26,9 @@ export class Bot {
 
   private async dbConnect() {
     await pool.connect();
-    console.log('Connected to database...')
+    console.log('Connected to database...');
+    await pool.query(`UPDATE public.states SET dota2 = ${false}, csgo = ${false}`);
+    console.log(`Setting statuses for games to false`);
   }
 
   public async listen(): Promise<string> {
@@ -36,7 +38,7 @@ export class Bot {
     
     this.client.on('message', async (message: Message) => {
       if (message.author.bot) {
-        console.log(`Ignoring bot message: ${message}`)
+        console.log(`Ignoring bot message: ${message}`);
         return;
       }
       if (!this.pingFinder.checkPing(message.content)) return;
