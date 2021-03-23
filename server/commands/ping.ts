@@ -10,5 +10,5 @@ export async function Ping(params: IFunctionParams) {
         console.log(`Repeat pinger found: ${authorId}`);
         return;
     }
-    return "lol fuck u bitch ass";
+    return `Congrats! You found the !ping system! Do you want a cookie?`;
 }
