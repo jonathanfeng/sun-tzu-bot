@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed, GuildMember, Snowflake, Collection } from 'discord.js';
 import _ = require('lodash');
 import { QueryController } from '../database/query';
 import { IFunctionParams } from '../services/message-responder';
@@ -9,6 +9,14 @@ export enum ExodiaEmojis {
   RightArm = '<:exodiarightarm:812195831318970388>',
   LeftLeg = '<:exodialeftleg:812195847491682304>',
   RightLeg = '<:exodiarightleg:812195861806186536>',
+}
+
+export enum ReverseExodiaEmojis {
+  '<:exodiahead:812195660123340850>' = 'exodiaHead',
+  '<:exodialeftarm:812194998090596352>' = 'leftarm',
+  '<:exodiarightarm:812195831318970388>' = 'rightarm',
+  '<:exodialeftleg:812195847491682304>' = 'leftleg',
+  '<:exodiarightleg:812195861806186536>' = 'rightleg',
 }
 
 export enum ExodiaCase {
@@ -33,7 +41,7 @@ export async function StartExodia(params: IFunctionParams) {
   if (!game) return "Please specify a game when trying to summon exodia";
   const timer: number = parseInt(args[1]) > 60 ? parseInt(args[1]) : DEFAULT_TIMER;
   if (await isActiveGame(game, qc)) return "There is already a queue in place";
-  setTimeout( async () => {await endSearch(game, message, authorId, qc)}, timer * 60 * 1000);
+  setTimeout( async () => {await endSearch(game, authorId, true, qc, message)}, timer * 60 * 1000);
   await setActiveGame(game, qc);
   const mention = !process.env['IS_DEV'] ? `<@&${getMention(message, game).map(role => role.id)[0]}>` : 'idiots';
   const embedMessage = await generateEmbed(message, game, timer, mention);
@@ -46,11 +54,14 @@ async function generateEmbed(message: Message, game: string, timer: number, ment
     .setColor('DEFAULT')
     .setTitle(`${message.author.username}'s Exodia Summoning Party for ${game.toUpperCase()}`)
     .setURL('https://www.youtube.com/watch?v=OBaJBGY-HUc')
-    .setAuthor(message.author.username, message.author.defaultAvatarURL, message.author.defaultAvatarURL)
+    .setAuthor(`ExodiaHunt`, message.author.defaultAvatarURL, message.author.defaultAvatarURL)
     .setDescription(`Game timer set for ${timer} minute(s)`)
     .addFields(
       { name: `JOIN NOW`, value: `There are 4 spots open ${mention}!` },
-      { name: message.author.username, value: ExodiaEmojis.Head },
+      { name: '\u200B', value: '\u200B', inline: true },
+      { name: message.author.username, value: ExodiaEmojis.Head, inline: true },
+      { name: '\u200B', value: '\u200B', inline: true },
+      { name: '\u200B', value: '\u200B' },
       { name: 'Empty', value: ExodiaEmojis.LeftArm, inline: true},
       { name: 'Empty', value: ExodiaEmojis.RightArm, inline: true},
       { name: '\u200B', value: '\u200B' },
@@ -65,18 +76,19 @@ async function generateEmbed(message: Message, game: string, timer: number, ment
 export async function AddExodia(params: IFunctionParams) {
   const qc = new QueryController();
   const { message, args, command } = params;
-  const authorId = message.author.id;
-  const authorUsername = message.author.username;
   const game = args[0] ? args[0].toLowerCase() : undefined;
   const mention = !process.env['IS_DEV'] ? `<@&${getMention(message, game).map(role => role.id)[0]}>` : 'idiots';
   if (!game) return "Please specify a game you are trying to join.";
   if (!(await isActiveGame(game, qc))) return "There is no active game for you to join.";
-  const joinStatus = await joinParty(game, command, authorId, authorUsername, mention, qc);
+  const joinStatus = await joinParty(game, command, message, mention, qc);
   return joinStatus;
 };
 
-async function joinParty(game: string, command: string, authorId: string, authorUsername: string, mention: string, qc: QueryController) {
+async function joinParty(game: string, command: string, message: Message, mention: string, qc: QueryController) {
+  const authorId = message.author.id;
+  const authorUsername = message.author.username;
   const currentParty = await qc.getLatestParty(game);
+  const createTime = new Date(currentParty.timestamp).getTime();
   const partyJson = currentParty.players;
   const embedMessage: MessageEmbed = new MessageEmbed(currentParty.embedmessage);
   if (!_.every(partyJson, null)) {
@@ -100,9 +112,22 @@ async function joinParty(game: string, command: string, authorId: string, author
   }
   if (!_.every(partyJson, null)) {
     embedMessage.fields[0].value = `There are ${PartySize[game]-currentParty.playercount} spots open ${mention}!`;
+    embedMessage.setTimestamp();
+    const timeLeft = Math.floor(((currentParty.timer * 60) - (embedMessage.timestamp - createTime)/1000)/60);
+    embedMessage.setDescription(`There are ${timeLeft} minute(s) left!`);
   } else {
     embedMessage.setDescription(`Party is found! Let's go!`);
-    embedMessage.fields[0].value = `Party is found! Let's go!`
+    embedMessage.fields[0].value = `Party is found! Let's go!`;
+
+    const mentionArray = [];
+    embedMessage.fields.forEach(field => {
+      if (ReverseExodiaEmojis[field.value]) {
+        const part = ReverseExodiaEmojis[field.value];
+        mentionArray.push(`<@${partyJson[part]}>`);
+      }
+    });
+    embedMessage.addField(`Tagging players:`, mentionArray.join(', '));
+    endSearch(game, authorId, false, qc);
     return embedMessage;
   }
   const joinQuery = `UPDATE public.parties SET players = $1, embedMessage = $2, playercount = $3 WHERE uuid = $4`;
@@ -127,11 +152,13 @@ function getMention(message: Message, game: string) {
   }
 };
 
-async function endSearch(game: string, message: Message, authorId:string, qc: QueryController) {
+async function endSearch(game: string, authorId:string, isFail: boolean, qc: QueryController, message?: Message) {
   if (await isActiveGame(game, qc)) {
     const endQuery = `UPDATE public.states SET ${game} = ${false}`;
     await qc.runQuery(endQuery);
-    message.channel.send(`The ${game} Exodia party failed to summon for ${authorId} and friends.`);
+    if (isFail) {
+      message.channel.send(`The ${game} Exodia party failed to summon for ${authorId} and friends.`);
+    }
   }
 };
 

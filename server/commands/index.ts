@@ -2,6 +2,7 @@ import {Ping} from './ping';
 import {SunTzuQuote} from './suntzu';
 import {Rosh} from './roshan';
 import {StartExodia, AddExodia} from './exodia';
+import {Help} from './help';
 
 export const COMMANDS = {
     'ping': Ping,
@@ -9,4 +10,5 @@ export const COMMANDS = {
     'shouldirosh?': Rosh,
     'exodia': StartExodia,
     'joinexodia': AddExodia,
+    'help': Help,
 };
